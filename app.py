@@ -1,20 +1,23 @@
 from flask import Flask, render_template, request, jsonify
 import locale
+import re
 
 app = Flask(__name__)
 
-locale.setlocale(locale.LC_NUMERIC, '')
+locale.setlocale(locale.LC_NUMERIC, 'en_US.UTF-8')
 
 MIN_VALUE = -1000000000000.000000
 MAX_VALUE = 1000000000000.000000
 
 
-def check_overflow(result):
-    return result < MIN_VALUE or result > MAX_VALUE
+def check_overflow(number):
+    return number < MIN_VALUE or number > MAX_VALUE
 
 
 def parse_number(number_str):
     number_str = number_str.replace(',', '.')
+    if not re.match(r'^-?\d+(\.\d+)?$', number_str):
+        return None
     try:
         return float(number_str)
     except ValueError:
@@ -37,6 +40,9 @@ def calculate():
 
     if number1 is None or number2 is None:
         return jsonify({'error': 'Invalid input'})
+
+    if check_overflow(number1) or check_overflow(number2):
+        return jsonify({'error': 'Overflow'})
 
     if operation == 'add':
         result = number1 + number2
