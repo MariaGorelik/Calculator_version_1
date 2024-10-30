@@ -24,6 +24,11 @@ def parse_number(number_str):
         return None
 
 
+def arithmetic_round(number, decimals=0):
+    factor = 10 ** decimals
+    return int(number * factor + 0.5) / factor if number >= 0 else int(number * factor - 0.5) / factor
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -54,7 +59,7 @@ def calculate():
     if check_overflow(result):
         return jsonify({'error': 'Overflow'})
 
-    return jsonify({'result': f'{result:.6f}'})
+    return jsonify({'result': f'{arithmetic_round(result, 6)}'})
 
 
 if __name__ == '__main__':
